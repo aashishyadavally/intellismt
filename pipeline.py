@@ -263,8 +263,8 @@ if __name__ == '__main__':
 
     for instance in tqdm(data_instances, total=len(data_instances)):
         try:
-            all_clauses = instance['constraints']
-            all_smt2_clauses = instance['smt2_constraints']
+            all_constraints = instance['constraints']
+            all_smt2_constraints = instance['smt2_constraints']
 
             # File name to read from, or cache logs.
             prefix = Path(instance['path_to_smt2_formula']).parent.stem
@@ -280,11 +280,11 @@ if __name__ == '__main__':
             if args.explore_only:
                 # Generate progress logs for Stage 1 and Stage 2.
                 _, explore_only_logs = explore_and_validate(
-                    all_clauses,
-                    all_smt2_clauses,
+                    all_constraints,
+                    all_smt2_constraints,
                     instance['smt2_formula_placeholder'],
                     {"Path to SMT2 file": instance["path_to_smt2_formula"],
-                     "Number of input clauses": len(all_clauses)},
+                     "Number of input constraints": len(all_constraints)},
                     args,
                 )
                 logs_to_save = explore_only_logs
@@ -301,26 +301,26 @@ if __name__ == '__main__':
                     if best_subset_id:
                         subset = explore_only_logs[f'Candidate-{best_subset_id}']['Parsed Subset']
                     else:
-                        subset = all_clauses
+                        subset = all_constraints
 
                 # Since both ``args.explore_only`` and ``args.minimize_only`` are ``False``,
                 # this is equivalent to running the complete IntelliSMT pipeline.
                 else:
                     # Generate progress logs for Stage 1 and Stage 2.
                     subset, explore_only_logs = explore_and_validate(
-                        all_clauses,
-                        all_smt2_clauses,
+                        all_constraints,
+                        all_smt2_constraints,
                         instance['smt2_formula_placeholder'],
                         {"Path to SMT2 file": instance["path_to_smt2_formula"],
-                        "Number of input clauses": len(all_clauses)},
+                        "Number of input constraints": len(all_constraints)},
                         args,
                     )
 
                 # Generate progress logs for Stage 3.
                 minimizer_logs = minimize(
                     subset,
-                    all_clauses,
-                    all_smt2_clauses,
+                    all_constraints,
+                    all_smt2_constraints,
                     instance['cvc5_assertions'],
                     instance['smt2_formula_placeholder'],
                     args
@@ -328,7 +328,7 @@ if __name__ == '__main__':
 
                 logs_to_save = {**explore_only_logs, **minimizer_logs}
 
-                print(f"  Number of input clauses: {len(all_clauses)}")
+                print(f"  Number of input constraints: {len(all_constraints)}")
                 print(f"  Length of subset: {minimizer_logs['SMT2 Minimizer']['Number of constraints to SMT2-Minimizer']}")
                 print(f"  Length of MUS: {len(minimizer_logs['SMT2 Minimizer']['MUS']['MUS'])}")
 
