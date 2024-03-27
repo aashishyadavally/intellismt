@@ -87,7 +87,7 @@ Navigate to ``intellismt/qualitative-analysis/`` to find the details about the e
     | ``--minimize_only``     | ``False``               | If True, run only Stage 3 in IntelliSMT pipeline |
     | ``--num_responses``     | ``5``                   | Number of responses to generate for Explorer LLM |
     | ``--seed``              | ``42``                  | Set common system-level random seed |
-    | ``--top_p``             | ``0.7`                  | Only the most probable tokens with probabilities that add up to top_p or higher are considered during decoding |
+    | ``--top_p``             | ``0.7``                 | Only the most probable tokens with probabilities that add up to top_p or higher are considered during decoding |
     | ``--temperature``       | ``0.6``                 | A value used to warp next-token probabilities in sampling mode |
     | ``--use_minimizer_llm`` | ``False``               | Whether to use ``intellismt.modules.minimizers.LLMMinimizer`` for finding MUS |
     | ``--split``             | ``test``                | Evaluation split |
@@ -95,7 +95,7 @@ Navigate to ``intellismt/qualitative-analysis/`` to find the details about the e
     | ``--combine_strategy``  | ``mean`                 | Strategy to aggregate sub-token embeddings. Only valid when ``--parse_strategy`` is set to ``embedding`` |
     | ``--timeout``           | ``30000``               | Timeout for SMT-2 validator (in milliseconds) |
 
-    Sample usage:
+    ***Sample usage:***
     ```bash
     python pipeline.py --path_to_data ../dataset --path_to_outputs ../outputs_gpt4
     ```
