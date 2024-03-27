@@ -1,4 +1,5 @@
-"""
+"""Contains code for naive baseline, as used in intrinsic evaluation (RQ1).
+The naive baseline picks a random subset from the power-set of the input formulae.
 """
 import argparse
 import json
