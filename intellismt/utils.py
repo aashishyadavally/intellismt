@@ -1,4 +1,4 @@
-"""Contains IntelliSMT Framework utilities.
+"""Contains utilities for IntelliSMT framework.
 """
 import re
 import time
