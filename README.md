@@ -100,8 +100,13 @@ Navigate to ``intellismt/qualitative-analysis/`` to find the details about the e
     python pipeline.py --path_to_data ../dataset --path_to_outputs ../outputs_gpt4
     ```
 
-    ***Note:*** We use the ``seed`` parameter when using the OpenAI chat completion client to ensure reproducible outputs. However, as the OpenAI team notes, sometimes, determinism may be impacted due to necessary changes to model configurations ([[link]](https://platform.openai.com/docs/guides/text-generation/reproducible-outputs)). 
+    ***Note:*** We use the ``seed`` parameter when using the OpenAI chat completion client to ensure reproducible outputs. However, as the OpenAI team notes, sometimes, determinism may be impacted due to necessary changes to model configurations ([[link]](https://platform.openai.com/docs/guides/text-generation/reproducible-outputs)).
 
+    ***Note:*** A prerequisite to running ``pipeline.py`` is that it expects an ``.env`` file at the top-level directory with the following key-value pairs: 
+    * AZURE_OPENAI_ENDPOINT=<name-of-endpoint>
+    * OPENAI_API_KEY=<api-key>
+    * OPENAI_API_VERSION=<api-version>
+    * AZURE_OPENAI_DEPLOYMENT_NAME=<gpt-model-deployment-name>
 
 ## Contributing Guidelines
 There are no specific guidelines for contributing, apart from a few general guidelines we tried to follow, such as:
