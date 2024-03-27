@@ -1,3 +1,5 @@
+"""Contains code for experiments in intrinsic evaluation (RQ1).
+"""
 import argparse
 import json
 from pathlib import Path
