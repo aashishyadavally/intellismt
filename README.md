@@ -1,4 +1,4 @@
-# Artifact for "Reason, Minimize, and Solve: Analyzing Infeasible String Constraint Systems"
+# Artifact for "Large Language Models for Safe Minimization"
 
 ``IntelliSMT`` is a learning-aided solver to safely minimize input string constraint systems, useful for a parallelized, partial enumeration of its minimal unsatifiable subsets (MUSes). The source code, data, and model outputs are publicly available on GitHub (https://github.com/se-doubleblind/intellismt).
 
