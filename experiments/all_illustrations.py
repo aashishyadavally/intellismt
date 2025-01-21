@@ -10,24 +10,25 @@ from tqdm import tqdm
 from intrinsic_naive import stratify_by_interval as stratify_by_interval_naive
 from intrinsic import (
     extract_number_of_constraints,
-    stratify_by_interval as stratify_by_interval_gpt
+    stratify_by_interval as stratify_by_interval_llm
 )
 from extrinsic import build_test_muses
 
 
-def compute_intrinsic_naive(path_to_data, split):
+def compute_intrinsic_naive(path_to_data, split, n):
     """Compute metrics for intrinsic evaluation in naive baseline.
 
     Arguments:
         path_to_data (str): Path to processed string constraints dataset file.
         split (str): Evaluation split.
+        n (int): Number of responses.
     """
-    results_naive = stratify_by_interval_naive(path_to_data, split)
+    results_naive = stratify_by_interval_naive(path_to_data, split, n)
     return results_naive
 
 
-def compute_intrinsic_gpt(path_to_cache, split, sc):
-    """Compute metrics for intrinsic evaluation with GPT-x model.
+def compute_intrinsic_llm(path_to_cache, split, sc):
+    """Compute metrics for intrinsic evaluation with LLMs.
 
     Arguments:
         path_to_cache (str): Path to LLM-generated outputs.
@@ -40,7 +41,7 @@ def compute_intrinsic_gpt(path_to_cache, split, sc):
     path_to_cache = Path(path_to_cache) / 'smt2_minimizer' / 'sc' / split
     all_outputs = list(Path(path_to_cache).iterdir())
     number_of_constraints = extract_number_of_constraints(all_outputs, sc)
-    results_by_intervals = stratify_by_interval_gpt(number_of_constraints)
+    results_by_intervals = stratify_by_interval_llm(number_of_constraints)
     return results_by_intervals
 
 
@@ -105,12 +106,13 @@ def print_table_II(results_intrinsic):
     print(header)
 
     approaches = [
-        "Naive", "GPT-3.5 w/o SE", "GPT-3.5 w/ SE", "GPT-4 w/o SE", "GPT-4 w/ SE",
+        "Random (pass @1)", "GPT-3.5 w/o SE", "GPT-4 w/o SE" "Gemini w/o SE", "Claude w/o SE"
+        "Random (pass @5)", "GPT-3.5 w/ SE", "GPT-4 w/ SE", "Gemini w/ SE", "Claude w/ SE"
     ]
     for idx, results in enumerate(results_intrinsic):
-        if idx == 0:
+        if idx in [0, 5]:
             results_string = f"{approaches[idx]}\t\t" + \
-                "\t".join([f"{v[0]}/{v[1]}" for v in results.values()])
+                "\t".join([f"{v[0][0]}/{v[0][1]}" for v in results[0].values()])
         else:
             results_string = f"{approaches[idx]}\t" + \
                 "\t".join([f"{v[0][0]}/{v[0][1]}" for v in results.values()])
@@ -128,8 +130,13 @@ def print_table_III(results_intrinsic):
     header = f"Approach\t\t" + "\t\t".join(results_intrinsic[-1].keys())
     print(header)
 
-    approaches = ["GPT-3.5 w/ SE", "GPT-4 w/ SE"]
-    for idx, results in enumerate([results_intrinsic[2], results_intrinsic[4]]):
+    approaches = ["GPT-3.5 w/ SE", "GPT-4 w/ SE", "Gemini w/ SE", "Claude w/ SE"]
+    for idx, results in enumerate([
+        results_intrinsic[2],
+        results_intrinsic[4],
+        results_intrinsic[6],
+        results_intrinsic[8],
+    ]):
         results_string = f"{approaches[idx]}\t | "
         for v in results.values():
             try:
@@ -173,14 +180,20 @@ if __name__ == '__main__':
                         help='Path to processed string constraints dataset file.')
     parser.add_argument("--split", type=str, default='test', choices=['val', 'test'],
                         help=("Evaluation split."))
+    parser.add_argument('--n', type=int, default=5, help="Number of responses.")
 
     args = parser.parse_args()
     
-    results_intrinsic = [compute_intrinsic_naive(args.path_to_data, args.split)]
-    for path_to_cache in ["../outputs_gpt35", "../outputs_gpt4"]:
+    results_intrinsic = [compute_intrinsic_naive(args.path_to_data, args.split, args.n)]
+    for path_to_cache in [
+        "../outputs_all/outputs_gpt35",
+        "../outputs_all/outputs_gpt4",
+        '../outputs_all/outputs_geminipro',
+        '../outputs_all/outputs_claude',
+    ]:
         for sc in [False, True]:
             results_intrinsic.append(
-                compute_intrinsic_gpt(path_to_cache, args.split, sc)
+                compute_intrinsic_llm(path_to_cache, args.split, sc)
             )
 
     # Print Table II (RQ1: Intrinsic Evaluation)
@@ -189,5 +202,5 @@ if __name__ == '__main__':
     # Print Table III (RQ2: Extrinsic Evaluation)
     print_table_III(results_intrinsic)
 
-    # Overlapping Analysis (RQ3: Extrinsic Evaluation)
+    # # Overlapping Analysis (RQ3: Extrinsic Evaluation)
     do_overlapping_analysis(args.split)
