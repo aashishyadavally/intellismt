@@ -1,14 +1,16 @@
-"""Main script for running the IntelliSMT pipeline using GPT-x model.
+"""Main script for running the IntelliSMT pipeline using LLMs.
 
 Prerequisites:
     Set up a .env file with the following key-value pairs based on
     Azure OpenAI credentials.
     (1) AZURE_OPENAI_ENDPOINT=<name-of-endpoint>
-    (2) OPENAI_API_KEY=<api-key>
+    (2) OPENAI_API_KEY=<openai-api-key>
     (3) OPENAI_API_VERSION=<api-version>
     (4) AZURE_OPENAI_DEPLOYMENT_NAME=<gpt-model-deployment-name>
+    (5) ANTHROPIC_API_KEY=<anthropic-api-key>
+    (6) GEMINI_API_KEY=<gemini-api-key>
 
-Usage:
+Example Usage:
     GPT model, entire pipeline.
     $ python pipeline.py --path_to_data <path-to-unsat.LeetCode.test.json> --path_to_outputs outputs
 """
