@@ -5,8 +5,8 @@ import argparse
 import json
 import logging
 import random
+import statistics
 from pathlib import Path
-
 
 from tqdm import tqdm
 
@@ -17,6 +17,7 @@ from utils import (
     set_cvc5_options_for_unsat,
     parse_input_formula
 )
+from intrinsic_search import init_solver, check_subset_unsat
 
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
@@ -78,7 +79,7 @@ class UNSATVerifier:
             return False
 
 
-def stratify_by_interval(path_to_data, split):
+def stratify_by_interval(path_to_data, split, n):
     """Stratify results based on the number of constraints in the input formula.
     Intervals include 0-10, 10-20, ..., 40-50.
 
@@ -95,49 +96,67 @@ def stratify_by_interval(path_to_data, split):
     with open(path_to_benchmark, 'r') as f:
         data_instances = json.load(f)
 
+    solver = init_solver()
     stratified_results = {}
-
+    pct, pct_corr = [], []
     for instance in tqdm(data_instances, total=len(data_instances)):
         all_clauses = instance['constraints']
         all_smt2_clauses = instance['smt2_constraints']
+        check_subset_unsat(solver, all_smt2_clauses, instance['smt2_formula_placeholder'])
+        mus = solver.getUnsatCore()
 
-        subset = [element for element in all_clauses if random.choice([True, False])]
+        is_unsat = False
+        for _ in range(n):
+            subset = [element for element in all_clauses if random.choice([True, False])]
+            unsat_verifier = UNSATVerifier()
+            # Check whether the clause subset returned by Explorer LLM
+            # is indeed UNSAT.
+            is_unsat = unsat_verifier.check(
+                subset, all_clauses, all_smt2_clauses, instance['smt2_formula_placeholder']
+            )
+            # Break out of loop if UNSAT subset is found.
+            if is_unsat: break
+        
+        try:
+            ratio = (len(all_clauses) - len(subset)) / (len(all_clauses) - len(mus))
+        except ZeroDivisionError:
+            ratio = 0.0
+        
+        if is_unsat:
+            pct.append((len(all_clauses) - len(subset)) / len(all_clauses))
+            pct_corr.append((len(all_clauses) - len(subset)) / len(all_clauses))
+        else:
+            pct.append(0)
 
-        unsat_verifier = UNSATVerifier()
-        # Check whether the clause subset returned by Explorer LLM
-        # is indeed UNSAT.
-        is_unsat = unsat_verifier.check(
-            subset, all_clauses, all_smt2_clauses, instance['smt2_formula_placeholder']
-        )
 
         lower_lim = len(all_clauses) - (len(all_clauses) % 10)
         upper_lim = lower_lim + 10
         key = f'{lower_lim}-{upper_lim}'
         if key in stratified_results:
-            [stratified_correct, stratified_total]  = stratified_results[key]
+            [stratified_correct, stratified_total], _ratio  = stratified_results[key]
             if is_unsat:
                 stratified_correct += 1
             stratified_total += 1
-            stratified_results[key] = [stratified_correct, stratified_total]
+            stratified_results[key] = [[stratified_correct, stratified_total], ratio + _ratio]
         else:
             if is_unsat:
-                stratified_results[key] = [1, 1]
+                stratified_results[key] = [[1, 1], ratio]
             else:
-                stratified_results[key] = [0, 1]
+                stratified_results[key] = [[0, 1], ratio]
 
         if 'Total' in stratified_results:
-            total_correct, total = stratified_results['Total']
+            [total_correct, total], total_ratio = stratified_results['Total']
             if is_unsat: total_correct += 1
             total += 1
-            stratified_results['Total'] = [total_correct, total]
+            stratified_results['Total'] = [[total_correct, total], total_ratio + ratio]
         else:
             if is_unsat:
-                stratified_results['Total'] = [1, 1]
+                stratified_results['Total'] = [[1, 1], ratio]
             else:
-                stratified_results['Total'] = [0, 1]
-    stratified_results = dict(sorted(stratified_results.items()))
-    return stratified_results
+                stratified_results['Total'] = [[0, 1], ratio]
 
+    stratified_results = dict(sorted(stratified_results.items()))
+    return stratified_results, statistics.mean(pct), statistics.mean(pct_corr)
 
 
 if __name__ == '__main__':
@@ -149,6 +168,7 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=42, help="Set common system-level random seed.")
     parser.add_argument("--split", type=str, default='test', choices=['val', 'test'],
                         help=("Evaluation split."))
+    parser.add_argument('--n', type=int, default=5, help="Number of responses.")
 
     args = parser.parse_args()
 
@@ -158,10 +178,17 @@ if __name__ == '__main__':
     # Print arguments
     logger.info(f'Run arguments are: {args}')
 
-    stratified_results = stratify_by_interval(args.path_to_data, args.split)
+    stratified_results, pct, pct_corr = stratify_by_interval(args.path_to_data, args.split, args.n)
+    print(f"Mean constraint reduction: {pct}%")
+    print(f"Mean constraint reduction, corrected: {pct_corr}%")
 
     print(f"Stratification based on intervals of total constraints:")
-    print(f"Interval\tC/N")
+    print(f"Interval\tC/N\tAdjusted r\tAbsolute r")
     for key, ratio_counter in stratified_results.items():
-        blank_1 = f"{ratio_counter[0]}/{ratio_counter[1]}"
-        print(f'{key}\t\t{blank_1}')
+        blank_1 = f"{ratio_counter[0][0]}/{ratio_counter[0][1]}"
+        try:
+            blank_2 = "{:.3f}".format(ratio_counter[1]/ratio_counter[0][0])
+        except ZeroDivisionError:
+            blank_2 = 0.0
+        blank_3 = "{:.3f}".format(ratio_counter[1]/ratio_counter[0][1])
+        print(f'{key}\t\t{blank_1}\t{blank_2}\t\t{blank_3}')
