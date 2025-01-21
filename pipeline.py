@@ -28,7 +28,7 @@ import openai
 from tqdm import tqdm
 
 sys.path.append(Path.cwd().absolute() / 'intellismt')
-from intellismt.modules.explorer import LLMExplorer
+from intellismt.modules.explorer import GPTExplorer, ClaudeExplorer, GeminiExplorer
 from intellismt.modules.minimizers import SMT2Minimizer
 from intellismt.modules.verifiers import UNSATVerifier
 
@@ -55,12 +55,38 @@ def explore_and_validate(all_constraints, all_smt2_constraints, placeholder, log
     Returns:
         (tuple): Tuple of minimal unsatisfiable subset, as a list, and updated logs.
     """
-    model_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
-    llm_explorer = LLMExplorer(
-        model_name=model_name, few_shot=args.few_shot, parse_strategy=args.parse_strategy,
-        combine_strategy=args.combine_strategy, top_p=args.top_p,
-        temperature=args.temperature, num_responses=args.num_responses,
-    )
+
+    if args.llm == 'gpt':
+        llm_explorer = GPTExplorer(
+            model_name=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
+            few_shot=args.few_shot,
+            parse_strategy=args.parse_strategy,
+            combine_strategy=args.combine_strategy,
+            top_p=args.top_p,
+            temperature=args.temperature,
+            num_responses=args.num_responses,
+        )
+    elif args.llm == 'claude':
+        llm_explorer = ClaudeExplorer(
+            model_name="claude-3-5-sonnet-20241022",
+            few_shot=args.few_shot,
+            parse_strategy=args.parse_strategy,
+            combine_strategy=args.combine_strategy,
+            top_p=args.top_p,
+            temperature=args.temperature,
+            num_responses=args.num_responses,
+            max_tokens_to_sample=args.max_tokens_to_sample
+        )
+    elif args.llm == 'gemini':
+        llm_explorer = GeminiExplorer(
+            few_shot=args.few_shot,
+            parse_strategy=args.parse_strategy,
+            combine_strategy=args.combine_strategy,
+            top_p=args.top_p,
+            temperature=args.temperature,
+            num_responses=args.num_responses,
+        )
+
     explorer_prompt = llm_explorer.get_prompt(all_constraints)
 
     seed = args.seed
@@ -190,10 +216,12 @@ if __name__ == '__main__':
                         help="Path to processed string constraints dataset file.")
     parser.add_argument("--path_to_outputs", type=str, default='outputs',
                         help="Path to processed string constraints dataset file.")
+    parser.add_argument("--llm", type=str, default='gpt', choices=['gpt', 'claude', 'gemini'],
+                        help=("LLM name."))
     parser.add_argument("--exrange", type=int, nargs=2, default=[0, 5],
                         help="Range of examples to process: upper-limit not considered.")
     parser.add_argument("--benchmark", type=str, default="Leetcode",
-                        choices=["Leetcode", "woorpje", "nornbenchmarks"], help="Benchmark dataset")
+                        choices=["Leetcode", "woorpje", "nornbenchmarks", "kaluza"], help="Benchmark dataset")
     parser.add_argument("--few_shot", action='store_true',
                         help=("Whether to use exemplars for few-shot learning or not."))
     parser.add_argument("--explore_only", action='store_true',
@@ -219,6 +247,8 @@ if __name__ == '__main__':
     parser.add_argument("--use_minimizer_llm", action='store_true',
                         help=("Whether to use ``modules.minimizers.LLMMinimizer`` for finding "
                               " MUS. By default, the pipeline uses ``modules.minimizers.Z3Minimizer``"))
+    parser.add_argument('--max_tokens_to_sample', type=int, default=4096,
+                        help='Max tokens to sample in Claude LLM.')
     parser.add_argument("--split", type=str, default='test', choices=['val', 'test'],
                         help=("Evaluation split."))
 
@@ -336,5 +366,4 @@ if __name__ == '__main__':
             with open(str(path_to_outputs / filename), 'w') as f:
                 json.dump(logs_to_save, f, indent=2)
 
-        except openai.BadRequestError:
-            continue
+        except: continue
