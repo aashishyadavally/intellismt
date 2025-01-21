@@ -149,10 +149,15 @@ def build_test_muses(path_to_cache, split):
     for output_file in tqdm(all_outputs):
         with open(output_file, 'r') as f:
             output_json = json.load(f)
-        
-        if output_json['Number of input clauses'] == \
-            output_json['SMT2 Minimizer']['Number of constraints to SMT2-Minimizer']:
-            continue
+
+        try:
+            if output_json['Number of input clauses'] == \
+                output_json['SMT2 Minimizer']['Number of constraints to SMT2-Minimizer']:
+                continue
+        except KeyError:
+            if output_json['Number of input constraints'] == \
+                output_json['SMT2 Minimizer']['Number of constraints to SMT2-Minimizer']:
+                continue
 
         candidate_keys = [key for key in output_json.keys() if key.startswith('Candidate')]
         all_suses = []
@@ -182,7 +187,7 @@ if __name__ == '__main__':
 
     parser.add_argument("--path_to_data", type=str, default='../dataset',
                         help='Path to processed string constraints dataset file.')
-    parser.add_argument("--path_to_cache", type=str, default='../outputs_gpt4',
+    parser.add_argument("--path_to_cache", type=str, default='../outputs_all/outputs_gpt4',
                         help="Path to LLM-generated outputs.")
     parser.add_argument("--split", type=str, default='test', choices=['val', 'test'],
                         help=("Evaluation split."))
