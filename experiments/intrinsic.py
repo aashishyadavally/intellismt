@@ -155,19 +155,23 @@ def extract_number_of_constraints(all_output_files, sc):
     for output_file in all_output_files:
         with open(output_file, 'r') as f:
             output_json = json.load(f)
+
+        if 'Number of input clauses' in output_json: key = 'clauses'
+        elif 'Number of input constraints' in output_json: key = 'constraints'
+
         if sc:
             number_of_constraints.append({
-                'to_explorer': output_json['Number of input clauses'],
+                'to_explorer': output_json[f'Number of input {key}'],
                 'to_minimizer': output_json['SMT2 Minimizer']['Number of constraints to SMT2-Minimizer'],
                 'mus': output_json['SMT2 Minimizer']['Number of constraints in MUS'],
             })
         else:
-            _to_minimizer = output_json['Number of input clauses']
+            _to_minimizer = output_json[f'Number of input {key}']
             if "Validator Response" in output_json["Candidate-0"]:
                 if output_json["Candidate-0"]["Validator Response"] == "UNSAT":
                     _to_minimizer = len(output_json["Candidate-0"]["Parsed Subset"])
             number_of_constraints.append({
-                'to_explorer': output_json['Number of input clauses'],
+                'to_explorer': output_json[f'Number of input {key}'],
                 'to_minimizer': _to_minimizer,
                 'mus': output_json['SMT2 Minimizer']['Number of constraints in MUS'],
             })
@@ -178,7 +182,8 @@ def extract_number_of_constraints(all_output_files, sc):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run Intrinsic Evaluation")
 
-    parser.add_argument("--path_to_cache", type=str, default='../outputs_gpt4',
+    parser.add_argument("--llm", type=str, default='gpt35',
+                        choices=['gpt35', 'gpt4', 'geminipro', 'claude'],
                         help="Path to LLM-generated outputs.")
     parser.add_argument("--split", type=str, default='test', choices=['val', 'test'],
                         help=("Evaluation split."))
@@ -187,7 +192,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    path_to_cache = Path(args.path_to_cache) / 'smt2_minimizer' / 'sc' / args.split
+    path_to_cache = Path(f'../outputs_all/outputs_{args.llm}') / f'smt2_minimizer/sc/{args.split}'
 
     all_outputs = list(Path(path_to_cache).iterdir())
     number_of_constraints = extract_number_of_constraints(all_outputs, args.sc)
@@ -199,6 +204,21 @@ if __name__ == '__main__':
 
     print(f"{print_msg}\n{'-'*len(print_msg)}")
     print(f"Number of instances with successful constraint reduction: {success}/{len(number_of_constraints)}")
+
+    import statistics
+    pct_min = statistics.mean(
+        [100*(item['to_explorer'] - item['to_minimizer'])/item['to_explorer'] \
+         for item in number_of_constraints]
+    )
+    print(f"Mean constraint reduction: {pct_min}%")
+
+    pct_min_corr = statistics.mean(
+        [100*(item['to_explorer'] - item['to_minimizer'])/item['to_explorer'] \
+         for item in number_of_constraints \
+         if item['to_explorer'] != item['to_minimizer']
+        ] 
+    )
+    print(f"Mean constraint reduction, corrected: {pct_min_corr}%")
 
     results_by_intervals = stratify_by_interval(number_of_constraints)
     print()
