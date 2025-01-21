@@ -47,7 +47,7 @@ Navigate to ``intellismt/dataset/`` to find:
 Navigate to ``intellismt/qualitative-analysis/`` to find the details about the empirical study (see RQ4) in the paper.
 
 ### Usage Guide
-1. Navigate to ``experiments/`` to find the source code for replicating the experiments in RQ1-RQ3 in the paper. This assumes the GPT-outputs in ``outputs_gpt35`` and ``outputs_gpt4`` are being used.
+1. Navigate to ``experiments/`` to find the source code for replicating the experiments in RQ1-RQ3 in the paper. This assumes the LLM outputs (e.g., ``outputs_gpt35``, as stored in ``outputs_all``) are being used.
 
   * **Option 1**. Run all experiments to print Tables II, III, and overlapping analysis in Section VIII:
   ```bash
@@ -59,7 +59,7 @@ Navigate to ``intellismt/qualitative-analysis/`` to find the details about the e
     - Intrinsic evaluation (RQ1 + RQ2)
       * *Run GPT models*
       ```bash
-      python intrinsic.py --path_to_cache ../outputs_gpt4 --split test --sc
+      python intrinsic.py --path_to_cache ../outputs_all/outputs_gpt4 --split test --sc
       ```
   
       * *Run naive baseline*
@@ -69,7 +69,7 @@ Navigate to ``intellismt/qualitative-analysis/`` to find the details about the e
   
     - Extrinsic evaluation (RQ3)
     ```bash
-    python extrinsic.py --path_to_data ../dataset --path_to_cache ../outputs_gpt4  --split test
+    python extrinsic.py --path_to_data ../dataset --path_to_cache ../outputs_all/outputs_gpt4  --split test
     ```
 
 2. Navigate to top-level directory to build GPT-x model outputs from scratch.
@@ -79,7 +79,7 @@ Navigate to ``intellismt/qualitative-analysis/`` to find the details about the e
     | Argument                | Default                 | Description |
     | :---------------------: | :---------------------: | :---- |
     | ``--path_to_data``      | ``../dataset``          | Path to processed string constraints dataset file  |
-    | ``--path_to_outputs``   | ``../outputs_gpt4``     | Path to cache GPT-x responses |
+    | ``--path_to_outputs``   | ``../outputs_all/outputs_gpt4``     | Path to cache GPT-x responses |
     | ``--exrange``           | ``0 5``                 | Range of examples to process: upper-limit not considered |
     | ``--benchmark``         | ``Leetcode``            | Benchmark dataset |
     | ``--few_shot``          | ``False``               | Whether to use exemplars for few-shot learning or not |
@@ -97,16 +97,18 @@ Navigate to ``intellismt/qualitative-analysis/`` to find the details about the e
 
     ***Sample usage:***
     ```bash
-    python pipeline.py --path_to_data ../dataset --path_to_outputs ../outputs_gpt4
+    python pipeline.py --path_to_data ../dataset --path_to_outputs ../outputs_all/outputs_gpt4
     ```
 
     ***Note:*** We use the ``seed`` parameter when using the OpenAI chat completion client to ensure reproducible outputs. However, as the OpenAI team notes, sometimes, determinism may be impacted due to necessary changes to model configurations ([[link]](https://platform.openai.com/docs/guides/text-generation/reproducible-outputs)).
 
-    ***Note:*** A prerequisite to running ``pipeline.py`` is that it expects an ``.env`` file at the top-level directory with the following key-value pairs: 
+    ***Note:*** A prerequisite to running ``pipeline.py`` is that it expects an ``.env`` file at the top-level directory with the following key-value pairs:
     * AZURE_OPENAI_ENDPOINT=<name-of-endpoint>
-    * OPENAI_API_KEY=<api-key>
+    * OPENAI_API_KEY=<openai-api-key>
     * OPENAI_API_VERSION=<api-version>
     * AZURE_OPENAI_DEPLOYMENT_NAME=<gpt-model-deployment-name>
+    * ANTHROPIC_API_KEY=<anthropic-api-key>
+    * GEMINI_API_KEY=<gemini-api-key>
 
 ## Contributing Guidelines
 There are no specific guidelines for contributing, apart from a few general guidelines we tried to follow, such as:
