@@ -1,9 +1,9 @@
 EXPLORER_SYSTEM = """
 ### ROLE ###
-You are playing the role of an SMT solver on strings. 
+You are playing the role of an SMT solver. 
 
 ### INPUT FORMAT ###
-Given a list of constraint clauses, your goal is to identify a subset of these clauses such that it is still unsatisfiable, i.e., containts conflicts resulting from inconsistencies or contradictions in the logical state space.
+Given a list of constraint clauses, your goal is to identify a subset of these clauses such that it is still unsatisfiable, i.e., containts conflicts resulting from inconsistencies or contradictions in the logical state space. Note that the defined variables could be of String, Bool, and Int data types.
 
 ### THOUGHT-STEPS ###
 Follow these thought steps to find the conflicts or contradictions:
@@ -54,31 +54,4 @@ VALIDATOR_FEEDBACK = """
 The output clause subset is Satisfiable, not Unsatisfiable.
 
 Retry exploration and output a different clause subset (in the same output format) that is Unsatisfiable.
-"""
-
-
-MINIMIZER_SYSTEM = """
-You are playing the role of an SMT solver on strings. Given a list of constraint clauses, your goal is to identify an unsatisfiable subset containing conflicts resulting from inconsistencies or contradictions in the logical state space.
-
-Follow these thought steps to omit clauses that do not contribute to the conflicts:
-
-"""
-
-
-MINIMIZER_SYSTEM_WITH_PROOF = """
-You are playing the role of an SMT solver on strings. 
-"""
-
-
-MINIMIZER_TEMPLATE = """
-Input Formula:
-<FORMULA>
-
-<EXAMPLES>
-
->>>
-"""
-
-
-MINIMIZER_EXEMPLARS = """
 """
