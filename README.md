@@ -8,7 +8,7 @@ This section describes the preqrequisites, and contains instructions, to get the
 ### Setup 
 
 #### Hardware Requirements
-``intellismt`` requires access to OpenAI API credentials to use GPT-3.5 and GPT-4. However, we also provide all GPT responses for the dataset, and this can be skipped for experiments' replication.
+``intellismt`` requires access to OpenAI API credentials to use GPT-3.5 and GPT-4; as well as Google and Anthropic API for Gemini-Pro and Claude-3.5-Sonnet, respectively. However, we also provide all LLM responses for the dataset (see `outputs_all.zip`), and this can be skipped for experiments' replication.
 
 #### Project Environment
 Currently, ``intellismt`` works well on Ubuntu OS, and can be set up easily with all the prerequisite packages by following these instructions (if ``conda`` is already installed, update to the latest version with ``conda update conda``, and skip steps 1 - 3):
@@ -41,13 +41,10 @@ Navigate to ``intellismt/dataset/`` to find:
 
 #### 2. Code
 * ``intellismt``: package code used in ``pipeline.py``
-* ``experiments``: Code for all experiments (RQ1-RQ3)
-
-#### 3. Qualitative Analysis
-Navigate to ``intellismt/qualitative-analysis/`` to find the details about the empirical study (see RQ4) in the paper.
+* ``experiments``: Code for all experiments (RQ1-RQ4)
 
 ### Usage Guide
-1. Navigate to ``experiments/`` to find the source code for replicating the experiments in RQ1-RQ3 in the paper. This assumes the LLM outputs (e.g., ``outputs_gpt35``, as stored in ``outputs_all``) are being used.
+1. Navigate to ``experiments/`` to find the source code for replicating the experiments in RQ1, RQ2, and RQ4 in the paper. This assumes the LLM outputs (e.g., ``outputs_gpt35``, as stored in ``outputs_all``) are being used.
 
   * **Option 1**. Run all experiments to print Tables II, III, and overlapping analysis in Section VIII:
   ```bash
@@ -56,20 +53,25 @@ Navigate to ``intellismt/qualitative-analysis/`` to find the details about the e
   
   * **Option 2.** Run experiments independently:
   
-    - Intrinsic evaluation (RQ1 + RQ2)
-      * *Run GPT models*
+    - Intrinsic evaluation (RQ1 + RQ3)
+      * *Run LLMs*
       ```bash
-      python intrinsic.py --path_to_cache ../outputs_all/outputs_gpt4 --split test --sc
+      python intrinsic.py --path_to_cache ../outputs_all/outputs_<llm> --split test --sc
       ```
   
-      * *Run naive baseline*
+      * *Run naive baselines*
       ```bash
-      python intrinsic_naive.py --path_to_data ../dataset --split test
+      python intrinsic_naive.py --path_to_data ../dataset --split test --n 5
+      ```
+
+      * *Run search baselines*
+      ```bash
+      python intrinsic_search.py --path_to_data ../dataset --split test
       ```
   
-    - Extrinsic evaluation (RQ3)
+    - Extrinsic evaluation (RQ4)
     ```bash
-    python extrinsic.py --path_to_data ../dataset --path_to_cache ../outputs_all/outputs_gpt4  --split test
+    python extrinsic.py --path_to_data ../dataset --path_to_cache ../outputs_all/outputs_claude  --split test
     ```
 
 2. Navigate to top-level directory to build GPT-x model outputs from scratch.
