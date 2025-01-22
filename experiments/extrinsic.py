@@ -1,4 +1,4 @@
-"""Contains code for extrinsic evaluation, as in RQ2 and RQ3.
+"""Contains code for extrinsic evaluation, as in RQ4.
 """
 import argparse
 import json
@@ -187,7 +187,7 @@ if __name__ == '__main__':
 
     parser.add_argument("--path_to_data", type=str, default='../dataset',
                         help='Path to processed string constraints dataset file.')
-    parser.add_argument("--path_to_cache", type=str, default='../outputs_all/outputs_gpt4',
+    parser.add_argument("--path_to_cache", type=str, default='../outputs_all/outputs_claude',
                         help="Path to LLM-generated outputs.")
     parser.add_argument("--split", type=str, default='test', choices=['val', 'test'],
                         help=("Evaluation split."))
