@@ -1,5 +1,5 @@
-"""Combines all ``experiments`` scripts to display Table 1 (RQ1), Table 2 (RQ2),
-and overlapping analysis (RQ3).
+"""Combines all ``experiments`` scripts to display Table 2 (RQ1), Table 3 (RQ3),
+and overlapping analysis (RQ4).
 """
 import argparse
 import json
@@ -46,7 +46,7 @@ def compute_intrinsic_llm(path_to_cache, split, sc):
 
 
 def compute_extrinsic_mus_counts(muses_outputs):
-    """Compute counts for overalapping analysis in RQ3.
+    """Compute counts for overalapping analysis in RQ4.
 
     Arguments:
         muses_outputs (list): List of JSON objects corresponding to GPT-x's outputs.
@@ -106,37 +106,32 @@ def print_table_II(results_intrinsic):
     print(header)
 
     approaches = [
-        "Random (pass @1)", "GPT-3.5 w/o SE", "GPT-4 w/o SE" "Gemini w/o SE", "Claude w/o SE"
+        "Random (pass @1)", "GPT-3.5 w/o SE", "GPT-4 w/o SE", "Gemini w/o SE", "Claude w/o SE",
         "Random (pass @5)", "GPT-3.5 w/ SE", "GPT-4 w/ SE", "Gemini w/ SE", "Claude w/ SE"
     ]
     for idx, results in enumerate(results_intrinsic):
         if idx in [0, 5]:
-            results_string = f"{approaches[idx]}\t\t" + \
-                "\t".join([f"{v[0][0]}/{v[0][1]}" for v in results[0].values()])
+            results_string = f"{approaches[idx]}\t | " + \
+                "\t".join([f"{v[0][0]}/{v[0][1]} | " for v in results[0].values()])
         else:
-            results_string = f"{approaches[idx]}\t" + \
-                "\t".join([f"{v[0][0]}/{v[0][1]}" for v in results.values()])
+            results_string = f"{approaches[idx]}\t | " + \
+                "\t".join([f"{v[0][0]}/{v[0][1]} | " for v in results.values()])
         print(results_string)
     print()
 
 
-def print_table_III(results_intrinsic):
-    """Print Table III, as in RQ2 (extrinsic evaluation).
+def print_table_IV(results_intrinsic):
+    """Print Table IV, as in RQ3 (extrinsic evaluation).
 
     Arguments:
         results_intrinsic (dict): Results from RQ1, which also contains minimization ratio.
     """
-    print("<<< Printing Table III >>>")
-    header = f"Approach\t\t" + "\t\t".join(results_intrinsic[-1].keys())
+    print("<<< Printing Table IV >>>")
+    header = f"Approach\t\t | " + "\t\t".join(results_intrinsic[-1].keys())
     print(header)
 
     approaches = ["GPT-3.5 w/ SE", "GPT-4 w/ SE", "Gemini w/ SE", "Claude w/ SE"]
-    for idx, results in enumerate([
-        results_intrinsic[2],
-        results_intrinsic[4],
-        results_intrinsic[6],
-        results_intrinsic[8],
-    ]):
+    for idx, results in enumerate(results_intrinsic[6:]):
         results_string = f"{approaches[idx]}\t | "
         for v in results.values():
             try:
@@ -150,12 +145,12 @@ def print_table_III(results_intrinsic):
 
 
 def do_overlapping_analysis(split):
-    """Overlapping analysis, as in RQ3 (extrinsic evaluation).
+    """Overlapping analysis, as in RQ4 (extrinsic evaluation).
 
     Arguments:
         split (str): Evaluation split.
     """
-    path_to_cache = "../outputs_gpt4"
+    path_to_cache = "../outputs_all/outputs_claude"
     path_to_muses = Path(path_to_cache) / f'{split}_muses.json'
     try:
         with open(str(path_to_muses), 'r') as f:
@@ -183,24 +178,36 @@ if __name__ == '__main__':
     parser.add_argument('--n', type=int, default=5, help="Number of responses.")
 
     args = parser.parse_args()
-    
-    results_intrinsic = [compute_intrinsic_naive(args.path_to_data, args.split, args.n)]
+
+    results_intrinsic = [compute_intrinsic_naive(args.path_to_data, args.split, 1)]
+
     for path_to_cache in [
         "../outputs_all/outputs_gpt35",
         "../outputs_all/outputs_gpt4",
-        '../outputs_all/outputs_geminipro',
-        '../outputs_all/outputs_claude',
+        "../outputs_all/outputs_geminipro",
+        "../outputs_all/outputs_claude",
     ]:
-        for sc in [False, True]:
-            results_intrinsic.append(
-                compute_intrinsic_llm(path_to_cache, args.split, sc)
-            )
+        results_intrinsic.append(
+            compute_intrinsic_llm(path_to_cache, args.split, False)
+        )
 
+    results_intrinsic.append(compute_intrinsic_naive(args.path_to_data, args.split, args.n))
+
+    for path_to_cache in [
+        "../outputs_all/outputs_gpt35",
+        "../outputs_all/outputs_gpt4",
+        "../outputs_all/outputs_geminipro",
+        "../outputs_all/outputs_claude",
+    ]:
+        results_intrinsic.append(
+            compute_intrinsic_llm(path_to_cache, args.split, True)
+        )
+ 
     # Print Table II (RQ1: Intrinsic Evaluation)
     print_table_II(results_intrinsic)
 
-    # Print Table III (RQ2: Extrinsic Evaluation)
-    print_table_III(results_intrinsic)
+    # Print Table III (RQ3: Extrinsic Evaluation)
+    print_table_IV(results_intrinsic)
 
-    # # Overlapping Analysis (RQ3: Extrinsic Evaluation)
+    # Overlapping Analysis (RQ4: Extrinsic Evaluation)
     do_overlapping_analysis(args.split)
