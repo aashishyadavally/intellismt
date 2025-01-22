@@ -140,7 +140,7 @@ if __name__ == '__main__':
     ## Pipeline arguments
     parser.add_argument("--path_to_data", type=str, default='../dataset',
                         help="Path to processed string constraints dataset file.")
-    parser.add_argument("--exrange", type=int, nargs=2, default=[0, 5],
+    parser.add_argument("--exrange", type=int, nargs=2, default=[0, 388],
                         help="Range of examples to process: upper-limit not considered.")
     parser.add_argument("--benchmark", type=str, default="Leetcode",
                         choices=["Leetcode", "woorpje", "nornbenchmarks", "kaluza"], help="Benchmark dataset")
