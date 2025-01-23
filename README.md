@@ -3,10 +3,10 @@
 ``IntelliSMT`` is a learning-aided solver to safely minimize input string constraint systems, useful for a parallelized, partial enumeration of its minimal unsatifiable subsets (MUSes). 
 
 ## Purpose
-This artifact has been archived on a public archival repository ([Zenodo]()), qualifying it for the **Available** badge. Moreover, it contains well-documented source code for replicating all experiments, along with all data and LLM outputs, in line with the expectations for the **Functional** and **Reusable** badges. Accordingly, we seek all of these badges for this artifact.
+This artifact has been archived on a public archival repository ([Zenodo](https://zenodo.org/records/14727424)), qualifying it for the **Available** badge. Moreover, it contains well-documented source code for replicating all experiments, along with all data and LLM outputs, in line with the expectations for the **Functional** and **Reusable** badges. Accordingly, we seek all of these badges for this artifact.
 
 ## Provenance
-The source code, data, and model outputs are publicly available on [GitHub](https://github.com/aashishyadavally/intellismt) and [Zenodo]().
+The source code, data, and model outputs are publicly available on [GitHub](https://github.com/aashishyadavally/intellismt) and [Zenodo](https://zenodo.org/records/14727424).
 
 ## Getting Started
 This section describes the preqrequisites, and contains instructions, to get the project up and running.
