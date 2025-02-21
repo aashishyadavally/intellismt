@@ -79,7 +79,7 @@ class UNSATVerifier:
             return False
 
 
-def stratify_by_interval(path_to_data, split, n):
+def stratify_by_interval(path_to_data, split, n, seed=None):
     """Stratify results based on the number of constraints in the input formula.
     Intervals include 0-10, 10-20, ..., 40-50.
 
@@ -90,8 +90,9 @@ def stratify_by_interval(path_to_data, split, n):
     Returns:
         stratified_results (dict): Stratified results.
     """
+    if seed: random.seed(seed)
     # Load data
-    path_to_benchmark = Path(path_to_data) / f"unsat.LeetCode.{split}.json"
+    path_to_benchmark = Path(path_to_data) / f"unsat.Leetcode.{split}.json"
     logger.info(f'Loading data from {path_to_benchmark}')
     with open(path_to_benchmark, 'r') as f:
         data_instances = json.load(f)

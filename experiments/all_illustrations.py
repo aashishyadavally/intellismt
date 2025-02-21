@@ -15,15 +15,16 @@ from intrinsic import (
 from extrinsic import build_test_muses
 
 
-def compute_intrinsic_naive(path_to_data, split, n):
+def compute_intrinsic_naive(path_to_data, split, n, seed):
     """Compute metrics for intrinsic evaluation in naive baseline.
 
     Arguments:
         path_to_data (str): Path to processed string constraints dataset file.
         split (str): Evaluation split.
         n (int): Number of responses.
+        seed (int): Random seed.
     """
-    results_naive = stratify_by_interval_naive(path_to_data, split, n)
+    results_naive = stratify_by_interval_naive(path_to_data, split, n, seed)
     return results_naive
 
 
@@ -102,7 +103,9 @@ def print_table_II(results_intrinsic):
         results_intrinsic (dict): Results from RQ1.
     """
     print("<<< Printing Table II >>>")
-    header = f"Approach\t" + "\t".join(results_intrinsic[-1].keys())
+    header = f"Approach\t" + \
+            "\t".join(results_intrinsic[-1].keys()) + \
+            "\tm_SUS (D_u)\tm_SUS (D)"
     print(header)
 
     approaches = [
@@ -112,10 +115,13 @@ def print_table_II(results_intrinsic):
     for idx, results in enumerate(results_intrinsic):
         if idx in [0, 5]:
             results_string = f"{approaches[idx]}\t | " + \
-                "\t".join([f"{v[0][0]}/{v[0][1]} | " for v in results[0].values()])
+                "\t".join([f"{v[0][0]}/{v[0][1]} | " for v in results[0].values()]) + \
+                "-- | \t --"
         else:
             results_string = f"{approaches[idx]}\t | " + \
-                "\t".join([f"{v[0][0]}/{v[0][1]} | " for v in results.values()])
+                "\t".join([f"{v[0][0]}/{v[0][1]} | " for v in results.values()]) + \
+                f"\t {round(list(results.values())[-1][1] / list(results.values())[-1][0][0], 3)} | " + \
+                f"\t {round(list(results.values())[-1][1] / list(results.values())[-1][0][1], 3)}"
         print(results_string)
     print()
 
@@ -176,10 +182,11 @@ if __name__ == '__main__':
     parser.add_argument("--split", type=str, default='test', choices=['val', 'test'],
                         help=("Evaluation split."))
     parser.add_argument('--n', type=int, default=5, help="Number of responses.")
+    parser.add_argument('--seed', type=int, default=42, help="Set common system-level random seed.")
 
     args = parser.parse_args()
 
-    results_intrinsic = [compute_intrinsic_naive(args.path_to_data, args.split, 1)]
+    results_intrinsic = [compute_intrinsic_naive(args.path_to_data, args.split, 1, seed=args.seed)]
 
     for path_to_cache in [
         "../outputs_all/outputs_gpt35",
@@ -191,7 +198,7 @@ if __name__ == '__main__':
             compute_intrinsic_llm(path_to_cache, args.split, False)
         )
 
-    results_intrinsic.append(compute_intrinsic_naive(args.path_to_data, args.split, args.n))
+    results_intrinsic.append(compute_intrinsic_naive(args.path_to_data, args.split, args.n, args.seed))
 
     for path_to_cache in [
         "../outputs_all/outputs_gpt35",

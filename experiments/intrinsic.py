@@ -36,6 +36,27 @@ def minimization_ratio(
             (num_all_constraints - num_mus_constraints)
 
 
+def minimization_ratio_sus(num_all_constraints, num_subset_constraints):
+    """Computes minimization ratio for SUSes.
+
+        m = (num_all_constraints - num_subset_constraints) 
+            ----------------------------------------------
+                       num_all_constraints
+
+    Arguments:
+        num_all_constraints (int): Number of constraints in input formula.
+        num_subset_constraints (int): Number of constraints in the SUS.
+    
+    Returns:
+        (float): Minimization ratio.
+    """
+    if num_all_constraints == 0:
+        return 1.0
+    else:
+        return (num_all_constraints - num_subset_constraints) / \
+            (num_all_constraints)
+
+
 def stratify_by_interval(all_number_of_constraints):
     """Stratify results based on the number of constraints in the input formula.
     Intervals include 0-10, 10-20, ..., 40-50.
@@ -50,8 +71,8 @@ def stratify_by_interval(all_number_of_constraints):
     are_correct = [True if item['to_explorer'] > item['to_minimizer'] else False \
                    for item in all_number_of_constraints]
 
-    ratios = [minimization_ratio(
-                item['to_explorer'], item['to_minimizer'], item['mus']
+    ratios = [minimization_ratio_sus(
+                item['to_explorer'], item['to_minimizer'],
               ) for item in all_number_of_constraints]
 
     results_by_intervals = {}
@@ -102,7 +123,7 @@ def stratify_by_minimization_ratio(all_number_of_constraints):
     are_correct = [True if item['to_explorer'] > item['to_minimizer'] else False \
                    for item in all_number_of_constraints]
 
-    ratios = [minimization_ratio(
+    ratios = [minimization_ratio_sus(
                 item['to_explorer'], item['to_minimizer'], item['mus']
               ) for item in all_number_of_constraints]
 
