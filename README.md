@@ -52,7 +52,7 @@ Navigate to ``intellismt/dataset/`` to find:
 ### Usage Guide
 1. Navigate to ``experiments/`` to find the source code for replicating the experiments in RQ1, RQ2, and RQ4 in the paper. This assumes the LLM outputs (e.g., ``outputs_gpt35``, as stored in ``outputs_all``) are being used.
 
-  * **Option 1**. Run all experiments to print Tables II, III, and overlapping analysis in Section VIII:
+  * **Option 1**. Run all experiments to print Tables II, IV, and overlapping analysis in Section VIII:
   ```bash
   python all_illustrations.py --path_to_data ../dataset --split test
   ```
