@@ -42,7 +42,7 @@ Currently, ``intellismt`` works well on Ubuntu OS, and can be set up easily with
 
 #### 1. Data Artifacts
 Navigate to ``intellismt/dataset/`` to find:
-* the processed string benchmark files (``unsat.LeetCode.{val|test}.json``) -- use these files to replicate experiments results in the paper from scratch.
+* the processed string benchmark files (``unsat.Leetcode.{val|test}.json``) -- use these files to replicate experiments results in the paper from scratch.
 * ``sampled_qualitative.json`` -- sampled dataset from test split for qualitative analysis.
 
 #### 2. Code

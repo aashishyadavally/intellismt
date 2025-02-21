@@ -12,7 +12,7 @@ Prerequisites:
 
 Example Usage:
     GPT model, entire pipeline.
-    $ python pipeline.py --path_to_data <path-to-unsat.LeetCode.test.json> --path_to_outputs outputs
+    $ python pipeline.py --path_to_data <path-to-unsat.Leetcode.test.json> --path_to_outputs outputs
 """
 import argparse
 import json
