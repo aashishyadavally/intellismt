@@ -1,4 +1,4 @@
-"""Combines all ``experiments`` scripts to display Table 2 (RQ1), Table 3 (RQ3),
+"""Combines all ``experiments`` scripts to display Table 2 (RQ1), Table 4 (RQ3),
 and overlapping analysis (RQ4).
 """
 import argparse
@@ -206,7 +206,7 @@ if __name__ == '__main__':
     # Print Table II (RQ1: Intrinsic Evaluation)
     print_table_II(results_intrinsic)
 
-    # Print Table III (RQ3: Extrinsic Evaluation)
+    # Print Table IV (RQ3: Extrinsic Evaluation)
     print_table_IV(results_intrinsic)
 
     # Overlapping Analysis (RQ4: Extrinsic Evaluation)
