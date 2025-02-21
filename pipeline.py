@@ -12,7 +12,7 @@ Prerequisites:
 
 Example Usage:
     GPT model, entire pipeline.
-    $ python pipeline.py --path_to_data <path-to-unsat.Leetcode.test.json> --path_to_outputs outputs
+    $ python pipeline.py --path_to_data <path-to-unsat.Leetcode.test.json> --path_to_outputs ./outputs_all/outputs_gpt4
 """
 import argparse
 import json
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     ## Pipeline arguments
     parser.add_argument("--path_to_data", type=str, default='dataset',
                         help="Path to processed string constraints dataset file.")
-    parser.add_argument("--path_to_outputs", type=str, default='outputs',
+    parser.add_argument("--path_to_outputs", type=str, default='outputs_all/outputs_gpt4',
                         help="Path to processed string constraints dataset file.")
     parser.add_argument("--llm", type=str, default='gpt', choices=['gpt', 'claude', 'gemini'],
                         help=("LLM name."))
